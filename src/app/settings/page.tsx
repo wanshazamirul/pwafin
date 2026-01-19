@@ -1,25 +1,58 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
-import { Moon, Sun, LogOut, Download, User, Palette, FolderOpen, Shield } from 'lucide-react'
+import { Moon, Sun, LogOut, Download, User, Palette, FolderOpen, Shield, Loader2 } from 'lucide-react'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { isGuestMode, clearGuestMode } from '@/lib/guest-mode'
 
-export default async function SettingsPage() {
-  const session = await auth()
+export default function SettingsPage() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const [isLoading, setIsLoading] = useState(true)
+  const [userName, setUserName] = useState('User')
+  const [userEmail, setUserEmail] = useState('')
 
-  // Allow access if authenticated or in guest mode
-  if (!session && !isGuestMode()) {
-    redirect('/login')
+  useEffect(() => {
+    // Check if user is authenticated or in guest mode
+    if (status === 'loading') return
+
+    const isGuest = isGuestMode()
+    if (!session && !isGuest) {
+      router.push('/login')
+    } else {
+      setUserName(session?.user?.name || (isGuest ? 'Guest' : 'User'))
+      setUserEmail(session?.user?.email || (isGuest ? 'Local mode (no account)' : ''))
+      setIsLoading(false)
+    }
+  }, [session, status, router])
+
+  const handleLogout = async () => {
+    const isGuest = isGuestMode()
+    if (isGuest) {
+      clearGuestMode()
+      router.push('/login')
+    } else {
+      await signOut({ callbackUrl: '/login' })
+    }
   }
 
-  const isGuest = isGuestMode()
-  const userName = session?.user?.name || (isGuest ? 'Guest' : 'User')
-  const userEmail = session?.user?.email || (isGuest ? 'Local mode (no account)' : '')
+  if (isLoading || status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center liquid-bg">
+        <Card className="glass-card p-8 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-teal-400" />
+          <p className="text-foreground/60">Loading...</p>
+        </Card>
+      </div>
+    )
+  }
 
   const categories = [
     'Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Healthcare', 'Others'
@@ -111,6 +144,7 @@ export default async function SettingsPage() {
               Change Password
             </Button>
             <Button
+              onClick={handleLogout}
               variant="outline"
               className="w-full justify-start touch-target text-red-400 hover:text-red-500 hover:bg-red-500/10"
             >

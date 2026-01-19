@@ -1,16 +1,39 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
-import { TrendingUp, TrendingDown } from 'lucide-react'
+import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react'
 import { isGuestMode } from '@/lib/guest-mode'
 
-export default async function DashboardPage() {
-  const session = await auth()
+export default function DashboardPage() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Allow access if authenticated or in guest mode
-  if (!session && !isGuestMode()) {
-    redirect('/login')
+  useEffect(() => {
+    // Check if user is authenticated or in guest mode
+    if (status === 'loading') return
+
+    const isGuest = isGuestMode()
+    if (!session && !isGuest) {
+      router.push('/login')
+    } else {
+      setIsLoading(false)
+    }
+  }, [session, status, router])
+
+  if (isLoading || status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center liquid-bg">
+        <Card className="glass-card p-8 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-teal-400" />
+          <p className="text-foreground/60">Loading...</p>
+        </Card>
+      </div>
+    )
   }
 
   const isGuest = isGuestMode()
