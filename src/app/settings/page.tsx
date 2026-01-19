@@ -3,21 +3,18 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { signOut } from 'next-auth/react'
-import { MobileLayout } from '@/components/layout/MobileLayout'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Moon, Sun, LogOut, Download, User, Palette, FolderOpen, Shield, Loader2 } from 'lucide-react'
+import { Download, Palette, FolderOpen, Shield, Loader2, Bell, Lock } from 'lucide-react'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
-import { isGuestMode, clearGuestMode } from '@/lib/guest-mode'
+import { isGuestMode } from '@/lib/guest-mode'
 
 export default function SettingsPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const [isLoading, setIsLoading] = useState(true)
-  const [userName, setUserName] = useState('User')
-  const [userEmail, setUserEmail] = useState('')
 
   useEffect(() => {
     // Check if user is authenticated or in guest mode
@@ -27,21 +24,9 @@ export default function SettingsPage() {
     if (!session && !isGuest) {
       router.push('/login')
     } else {
-      setUserName(session?.user?.name || (isGuest ? 'Guest' : 'User'))
-      setUserEmail(session?.user?.email || (isGuest ? 'Local mode (no account)' : ''))
       setIsLoading(false)
     }
   }, [session, status, router])
-
-  const handleLogout = async () => {
-    const isGuest = isGuestMode()
-    if (isGuest) {
-      clearGuestMode()
-      router.push('/login')
-    } else {
-      await signOut({ callbackUrl: '/login' })
-    }
-  }
 
   if (isLoading || status === 'loading') {
     return (
@@ -59,118 +44,123 @@ export default function SettingsPage() {
   ]
 
   return (
-    <MobileLayout showFAB={false}>
-      {/* Header */}
-      <header className="p-4 pt-safe">
-        <h1 className="text-xl font-bold">Settings</h1>
-      </header>
+    <AppLayout>
+      <div className="max-w-4xl">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Settings</h1>
+          <p className="text-foreground/60">Manage your account and preferences</p>
+        </div>
 
-      <div className="px-4 space-y-4">
-        {/* Profile */}
-        <Card className="glass-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center">
-              <User className="text-white" size={24} />
+        <div className="space-y-6">
+          {/* Appearance */}
+          <Card className="glass-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Palette size={20} className="text-foreground/60" />
+              <h2 className="text-lg font-semibold">Appearance</h2>
             </div>
-            <div className="flex-1">
-              <p className="font-semibold">{userName}</p>
-              <p className="text-sm text-foreground/60">{userEmail}</p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Appearance */}
-        <Card className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Palette size={18} className="text-foreground/60" />
-            <h2 className="font-semibold">Appearance</h2>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Moon size={18} />
-                <span>Dark Mode</span>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <p className="font-medium">Theme</p>
+                  <p className="text-sm text-foreground/60">Customize the app appearance</p>
+                </div>
+                <ThemeToggle />
               </div>
-              <ThemeToggle />
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Categories */}
-        <Card className="glass-card p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FolderOpen size={18} className="text-foreground/60" />
-              <h2 className="font-semibold">Categories</h2>
+          {/* Preferences */}
+          <Card className="glass-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Bell size={20} className="text-foreground/60" />
+              <h2 className="text-lg font-semibold">Preferences</h2>
             </div>
-            <Button variant="ghost" size="sm">
-              Manage
-            </Button>
-          </div>
-          <p className="text-sm text-foreground/60 mt-3 mb-2">
-            {categories.join(', ')}
-          </p>
-          <p className="text-xs text-foreground/40">
-            Default categories for organizing expenses
-          </p>
-        </Card>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <p className="font-medium">Notifications</p>
+                  <p className="text-sm text-foreground/60">Manage alert preferences</p>
+                </div>
+                <Button variant="outline" size="sm">
+                  Configure
+                </Button>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <p className="font-medium">Currency</p>
+                  <p className="text-sm text-foreground/60">Display currency format</p>
+                </div>
+                <div className="px-4 py-2 rounded-md bg-background/50 font-medium">
+                  RM (Malaysian Ringgit)
+                </div>
+              </div>
+            </div>
+          </Card>
 
-        {/* Data Export */}
-        <Card className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Download size={18} className="text-foreground/60" />
-            <h2 className="font-semibold">Data</h2>
-          </div>
-          <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-start touch-target">
-              <Download size={16} className="mr-2" />
-              Export CSV
-            </Button>
-            <Button variant="outline" className="w-full justify-start touch-target">
-              <Download size={16} className="mr-2" />
-              Export PDF Report
-            </Button>
-          </div>
-        </Card>
-
-        {/* Security */}
-        <Card className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Shield size={18} className="text-foreground/60" />
-            <h2 className="font-semibold">Security</h2>
-          </div>
-          <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-start touch-target">
-              Change Password
-            </Button>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="w-full justify-start touch-target text-red-400 hover:text-red-500 hover:bg-red-500/10"
-            >
-              <LogOut size={16} className="mr-2" />
-              Logout
-            </Button>
-          </div>
-        </Card>
-
-        {/* About */}
-        <Card className="glass-card p-4">
-          <div className="text-center">
-            <p className="font-semibold">WalletLog</p>
-            <p className="text-sm text-foreground/60 mb-1">Version 1.0.0</p>
-            <p className="text-xs text-foreground/40">
-              Made with ❤️ in Malaysia
+          {/* Categories */}
+          <Card className="glass-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FolderOpen size={20} className="text-foreground/60" />
+              <h2 className="text-lg font-semibold">Expense Categories</h2>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {categories.map((category) => (
+                <span
+                  key={category}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium"
+                >
+                  {category}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm text-foreground/60">
+              Default categories for organizing your expenses
             </p>
-            <Separator className="my-3" />
-            <div className="flex justify-center gap-4 text-sm">
-              <a href="#" className="text-teal-400">Privacy</a>
-              <a href="#" className="text-teal-400">Terms</a>
-              <a href="#" className="text-teal-400">Rate App</a>
+          </Card>
+
+          {/* Data Management */}
+          <Card className="glass-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Download size={20} className="text-foreground/60" />
+              <h2 className="text-lg font-semibold">Data & Privacy</h2>
             </div>
-          </div>
-        </Card>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full justify-start touch-target">
+                <Download size={18} className="mr-3" />
+                Export Data as CSV
+              </Button>
+              <Button variant="outline" className="w-full justify-start touch-target">
+                <Download size={18} className="mr-3" />
+                Export PDF Report
+              </Button>
+              <Separator />
+              <Button variant="outline" className="w-full justify-start touch-target">
+                <Lock size={18} className="mr-3" />
+                Change Password
+              </Button>
+            </div>
+          </Card>
+
+          {/* About */}
+          <Card className="glass-card p-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold gradient-text mb-2">WalletLog</h2>
+              <p className="text-sm text-foreground/60 mb-4">Version 1.0.0</p>
+              <p className="text-xs text-foreground/40 mb-4">
+                Made with ❤️ in Malaysia
+              </p>
+              <Separator className="my-4" />
+              <div className="flex justify-center gap-6 text-sm">
+                <a href="#" className="text-teal-400 hover:text-teal-300">Privacy Policy</a>
+                <a href="#" className="text-teal-400 hover:text-teal-300">Terms of Service</a>
+                <a href="#" className="text-teal-400 hover:text-teal-300">Rate App</a>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
-    </MobileLayout>
+    </AppLayout>
   )
 }
