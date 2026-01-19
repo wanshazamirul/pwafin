@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { setGuestMode } from '@/lib/guest-mode'
-import { User } from 'lucide-react'
+import { User, Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -17,10 +17,19 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleGuestMode = () => {
-    setIsLoading(true)
-    setGuestMode()
-    router.push('/dashboard')
+  const handleGuestMode = async () => {
+    try {
+      setIsLoading(true)
+      setGuestMode()
+      // Use setTimeout to ensure localStorage is set before navigation
+      setTimeout(() => {
+        window.location.href = '/dashboard'
+      }, 100)
+    } catch (err) {
+      console.error('Guest mode error:', err)
+      setError('Failed to start guest mode')
+      setIsLoading(false)
+    }
   }
 
   const handleGoogleSignIn = async () => {
@@ -28,14 +37,20 @@ export default function LoginPage() {
     setError('')
     try {
       await signIn('google', { callbackUrl: '/dashboard' })
+      // If signIn doesn't throw, it will redirect
     } catch (err) {
-      setError('Failed to sign in with Google')
+      setError('Google sign in not configured. Use email or guest mode.')
       setIsLoading(false)
     }
   }
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!email || !password) {
+      setError('Please fill in all fields')
+      return
+    }
+
     setIsLoading(true)
     setError('')
 
@@ -47,13 +62,18 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError('Invalid credentials')
+        setError('Failed to sign in. Try guest mode instead.')
         setIsLoading(false)
       } else if (result?.ok) {
         window.location.href = '/dashboard'
+      } else {
+        // Fallback: try guest mode if auth fails
+        setError('Sign in temporarily unavailable. Try guest mode below.')
+        setIsLoading(false)
       }
     } catch (err) {
-      setError('Failed to sign in')
+      console.error('Sign in error:', err)
+      setError('Sign in failed. Try guest mode instead.')
       setIsLoading(false)
     }
   }
@@ -61,7 +81,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 liquid-bg">
       <div className="w-full max-w-md">
-        <Card className="glass-card p-8">
+        <Card className="glass-card p-8 relative z-10">
           {/* Logo/Title */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold gradient-text mb-2">WalletLog</h1>
@@ -73,7 +93,8 @@ export default function LoginPage() {
             onClick={handleGoogleSignIn}
             disabled={isLoading}
             variant="outline"
-            className="w-full mb-4 touch-target-lg"
+            className="w-full mb-4 touch-target-lg relative z-20"
+            type="button"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -102,14 +123,17 @@ export default function LoginPage() {
               <span className="w-full border-t border-foreground/10" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-foreground/60">Or continue with email</span>
+              <span className="bg-card px-2 text-foreground/60">Or sign in / create account</span>
             </div>
           </div>
 
           {/* Credentials Form */}
           <form onSubmit={handleCredentialsSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail size={16} />
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -119,21 +143,29 @@ export default function LoginPage() {
                 disabled={isLoading}
                 required
                 className="touch-target-lg"
+                autoComplete="email"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="flex items-center gap-2">
+                <Lock size={16} />
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
                 className="touch-target-lg"
+                autoComplete="new-password"
               />
+              <p className="text-xs text-foreground/40">
+                New accounts are created automatically
+              </p>
             </div>
 
             {error && (
@@ -145,9 +177,9 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full gradient-accent text-white font-semibold touch-target-lg"
+              className="w-full gradient-accent text-white font-semibold touch-target-lg relative z-20"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Processing...' : 'Sign In / Create Account'}
             </Button>
           </form>
 
@@ -166,7 +198,8 @@ export default function LoginPage() {
             onClick={handleGuestMode}
             disabled={isLoading}
             variant="outline"
-            className="w-full mb-4 touch-target-lg border-dashed"
+            className="w-full mb-4 touch-target-lg border-dashed relative z-20"
+            type="button"
           >
             <User size={18} className="mr-2" />
             Continue as Guest
@@ -177,7 +210,7 @@ export default function LoginPage() {
 
           {/* Demo Note */}
           <p className="text-xs text-foreground/40 text-center">
-            Signed in mode: Data syncs to server (requires database setup)
+            Recommended: Use Guest Mode for now
           </p>
         </Card>
       </div>
