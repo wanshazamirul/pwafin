@@ -1,9 +1,8 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { BottomNav } from '@/components/layout/BottomNav'
-import { FAB } from '@/components/layout/FAB'
+import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
-import { Plus, TrendingUp, TrendingDown } from 'lucide-react'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -63,7 +62,7 @@ export default async function DashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen pb-24 liquid-bg">
+    <MobileLayout>
       {/* Header */}
       <header className="p-4 pt-safe">
         <div className="flex items-center justify-between">
@@ -136,12 +135,6 @@ export default async function DashboardPage() {
           ))}
         </div>
       </section>
-
-      {/* FAB */}
-      <FAB />
-
-      {/* Bottom Navigation */}
-      <BottomNav />
-    </div>
+    </MobileLayout>
   )
 }

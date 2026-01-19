@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Camera, X, Sparkles } from 'lucide-react'
-import { BottomNav } from '@/components/layout/BottomNav'
+import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -48,7 +48,7 @@ export default function ScanPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24 liquid-bg">
+    <MobileLayout showFAB={false}>
       {/* Header */}
       <header className="p-4 pt-safe flex items-center justify-between">
         <h1 className="text-xl font-bold">Scan Receipt</h1>
@@ -137,9 +137,6 @@ export default function ScanPage() {
           </div>
         </div>
       </div>
-
-      {/* Bottom Nav */}
-      <BottomNav />
-    </div>
+    </MobileLayout>
   )
 }

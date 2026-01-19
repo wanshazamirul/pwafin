@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { BottomNav } from '@/components/layout/BottomNav'
+import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -19,7 +19,7 @@ export default async function SettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen pb-24 liquid-bg">
+    <MobileLayout showFAB={false}>
       {/* Header */}
       <header className="p-4 pt-safe">
         <h1 className="text-xl font-bold">Settings</h1>
@@ -130,9 +130,6 @@ export default async function SettingsPage() {
           </div>
         </Card>
       </div>
-
-      {/* Bottom Nav */}
-      <BottomNav />
-    </div>
+    </MobileLayout>
   )
 }

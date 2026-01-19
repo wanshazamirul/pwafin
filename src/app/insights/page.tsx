@@ -1,7 +1,7 @@
 'use client'
 
 import { Bar, BarChart, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell, Legend } from 'recharts'
-import { BottomNav } from '@/components/layout/BottomNav'
+import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 
@@ -42,7 +42,7 @@ export default function InsightsPage() {
   ]
 
   return (
-    <div className="min-h-screen pb-24 liquid-bg">
+    <MobileLayout showFAB={false}>
       {/* Header */}
       <header className="p-4 pt-safe">
         <h1 className="text-xl font-bold">Insights</h1>
@@ -165,9 +165,6 @@ export default function InsightsPage() {
           </ResponsiveContainer>
         </Card>
       </div>
-
-      {/* Bottom Nav */}
-      <BottomNav />
-    </div>
+    </MobileLayout>
   )
 }

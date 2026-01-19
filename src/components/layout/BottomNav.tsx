@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
+  { href: '/insights', icon: BarChart3, label: 'Insights' },
   { href: '/scan', icon: Camera, label: 'Scan', isCenter: true },
   { href: '/history', icon: FileText, label: 'History' },
-  { href: '/insights', icon: BarChart3, label: 'Insights' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 

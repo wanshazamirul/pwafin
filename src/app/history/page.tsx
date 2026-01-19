@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Search, Edit2, Trash2, Filter } from 'lucide-react'
-import { BottomNav } from '@/components/layout/BottomNav'
-import { FAB } from '@/components/layout/FAB'
+import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -116,7 +115,7 @@ export default function HistoryPage() {
   }, {} as Record<string, typeof mockTransactions>)
 
   return (
-    <div className="min-h-screen pb-24 liquid-bg">
+    <MobileLayout>
       {/* Header */}
       <header className="p-4 pt-safe">
         <h1 className="text-xl font-bold mb-4">Transactions</h1>
@@ -212,12 +211,6 @@ export default function HistoryPage() {
           </div>
         )}
       </div>
-
-      {/* FAB */}
-      <FAB />
-
-      {/* Bottom Nav */}
-      <BottomNav />
-    </div>
+    </MobileLayout>
   )
 }
