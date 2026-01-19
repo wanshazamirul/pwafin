@@ -5,11 +5,15 @@ import { users } from '@/lib/db/schema'
 import { db } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 
+// Use a default secret in development only
+const authSecret = process.env.AUTH_SECRET || 'development-secret-change-in-production'
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  secret: authSecret,
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
     Credentials({
       credentials: {

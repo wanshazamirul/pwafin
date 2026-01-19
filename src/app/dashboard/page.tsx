@@ -3,12 +3,19 @@ import { redirect } from 'next/navigation'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { Card } from '@/components/ui/card'
 import { TrendingUp, TrendingDown } from 'lucide-react'
+import { isGuestMode } from '@/lib/guest-mode'
 
 export default async function DashboardPage() {
   const session = await auth()
-  if (!session) {
+
+  // Allow access if authenticated or in guest mode
+  if (!session && !isGuestMode()) {
     redirect('/login')
   }
+
+  const isGuest = isGuestMode()
+  const userName = session?.user?.name || (isGuest ? 'Guest' : 'User')
+  const userEmail = session?.user?.email || (isGuest ? 'Local mode (no account)' : '')
 
   // Mock data for now - replace with real database queries
   const totalThisMonth = 1234.56
@@ -68,7 +75,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-foreground/60">
-              Welcome back{session.user?.name ? `, ${session.user.name}` : ''}!
+              Welcome back{userName ? `, ${userName}` : ''}!
             </p>
             <h1 className="text-2xl font-bold gradient-text">WalletLog</h1>
           </div>

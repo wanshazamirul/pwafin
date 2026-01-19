@@ -7,12 +7,19 @@ import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Moon, Sun, LogOut, Download, User, Palette, FolderOpen, Shield } from 'lucide-react'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { isGuestMode, clearGuestMode } from '@/lib/guest-mode'
 
 export default async function SettingsPage() {
   const session = await auth()
-  if (!session) {
+
+  // Allow access if authenticated or in guest mode
+  if (!session && !isGuestMode()) {
     redirect('/login')
   }
+
+  const isGuest = isGuestMode()
+  const userName = session?.user?.name || (isGuest ? 'Guest' : 'User')
+  const userEmail = session?.user?.email || (isGuest ? 'Local mode (no account)' : '')
 
   const categories = [
     'Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Healthcare', 'Others'
@@ -33,8 +40,8 @@ export default async function SettingsPage() {
               <User className="text-white" size={24} />
             </div>
             <div className="flex-1">
-              <p className="font-semibold">{session.user?.name || 'User'}</p>
-              <p className="text-sm text-foreground/60">{session.user?.email}</p>
+              <p className="font-semibold">{userName}</p>
+              <p className="text-sm text-foreground/60">{userEmail}</p>
             </div>
           </div>
         </Card>

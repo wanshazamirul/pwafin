@@ -2,16 +2,26 @@
 
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
+import { setGuestMode } from '@/lib/guest-mode'
+import { User } from 'lucide-react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const handleGuestMode = () => {
+    setIsLoading(true)
+    setGuestMode()
+    router.push('/dashboard')
+  }
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
@@ -141,9 +151,33 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          {/* Guest Mode Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-foreground/10" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-foreground/60">Or try without account</span>
+            </div>
+          </div>
+
+          {/* Guest Mode Button */}
+          <Button
+            onClick={handleGuestMode}
+            disabled={isLoading}
+            variant="outline"
+            className="w-full mb-4 touch-target-lg border-dashed"
+          >
+            <User size={18} className="mr-2" />
+            Continue as Guest
+          </Button>
+          <p className="text-xs text-foreground/60 text-center mb-4">
+            Your data will be stored locally on this device only
+          </p>
+
           {/* Demo Note */}
-          <p className="text-xs text-foreground/60 text-center mt-6">
-            Demo: Any email/password will create a new account
+          <p className="text-xs text-foreground/40 text-center">
+            Signed in mode: Data syncs to server (requires database setup)
           </p>
         </Card>
       </div>
