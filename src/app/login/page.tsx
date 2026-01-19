@@ -79,7 +79,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 liquid-bg">
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
+      <div className="fixed inset-0 liquid-bg -z-10" />
       <div className="w-full max-w-md">
         <Card className="glass-card p-8 relative z-10">
           {/* Logo/Title */}
